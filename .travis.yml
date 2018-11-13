@@ -1,15 +1,21 @@
 language: go
 go:
 - 1.11.2
+go_import_path: github.org/pivotalservices/bom-mgmt
 before_install:
 - go get -v -u github.com/golang/dep/cmd/dep
 - go get github.com/mitchellh/gox
 install:
 - dep ensure
 script:
-- go build -o bom-mgmt cmd/bom-mgmt/main.go
-- gox -os="linux darwin" -arch="amd64"  -ldflags "-X github.com/pivotalservices/bom-mgmt/commands.GitRev=`git
-  rev-parse --short HEAD`" -verbose ./cmd/bom-mgmt/
+- export REV=`git rev-parse --short HEAD`
+- gox -os="linux darwin" -arch="amd64"
+  -ldflags "-X github.com/pivotalservices/bom-mgmt/commands.VERSION=${TRAVIS_TAG:-"1.0.0"}"
+  -ldflags "-X github.com/pivotalservices/bom-mgmt/commands.GitRev=`[ -z $TRAVIS_TAG ] && echo $REV`"
+   -verbose ./cmd/bom-mgmt/ 
+- ls -al
+- chmod 755 bom-mgmt_linux_amd64
+- ./bom-mgmt_linux_amd64 version
 deploy:
   provider: releases
   api_key:
