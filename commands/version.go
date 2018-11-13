@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-var VERSION = "1.0.0"
+var VERSION = "1.0.6"
 var GitRev = ""
 
 type VersionCommand struct {
