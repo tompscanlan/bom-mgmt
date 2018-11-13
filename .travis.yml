@@ -1,0 +1,26 @@
+language: go
+go:
+- 1.11.2
+go_import_path: github.com/pivotalservices/bom-mgmt
+before_install:
+- go get -v -u github.com/golang/dep/cmd/dep
+- go get -v -u github.com/mitchellh/gox
+install:
+- dep ensure -v
+script:
+- export REV=`git rev-parse --short HEAD`
+- gox -os="linux darwin" -arch="amd64"
+  -ldflags "-X github.com/pivotalservices/bom-mgmt/commands.VERSION=${TRAVIS_TAG:-"1.0.0"}"
+  -ldflags "-X github.com/pivotalservices/bom-mgmt/commands.GitRev=`[ -z $TRAVIS_TAG ] && echo $REV`"
+   -verbose ./cmd/bom-mgmt/
+deploy:
+  provider: releases
+  api_key:
+    secure: lvGARfzjYvRbHOI4jrl765KjBiXs9A+mqOrVV8hTZcf4pJ9mtCvYbng6QA3SSU2cfJzwABqcWq1GcePoppqPLA1fot9wESozkIJz3wf9XzFoD6Y1WSweBcyL73Utq7FE0zT1TV/xZph/Icz5QZvueXzOpBb+Q0BqJTUY0f4p+j5aU2JqBzTpEAH/SXt+kGnpcDsEERj0Nw746tfnKt/JZV2NtmSBjgjcQIDaBnmKfkYXWbzPKFn54K3RETxOfnSu5KJCQ/MN8OrERDq9LYYrFETdWXi4Z4A/E+PZrBYZeN/vkRdq9s3vBGURdpi0iZoHY/+P7GMhsTOwNkHEwrRST326AYYHFcCUEli2VYqY6MttcYzoVxH0t0TnFWHEeDi9Ytwfycfctluw6kHWaXT7A+bgdVSKcfTCOzHlxX9zi7HlyTSuVOuhNk8ep9Z76gPH4sSCUDTMqRD+lqYKeyfoSWSjHKkTbEWqK9zfq9IDVp4+4enf1KhJEAh6IBIGnqtOCbZnKpy1qNlv6ku5dkMMl/dWQsrqsmSFC/f3/pK4PjPI+3AZJAXsBVQytlAs4GdfxXN4+0m9zEyqRUkFFHidGEWfLXJQN1JWKH16+raF1yWrLw/F2rzlxYqWE+GaMyVU79vvh02jaPugiefHnUIM9Qkwtely6KAHBtRKeh/O+d4=
+  skip_cleanup: true
+  file:
+    - bom-mgmt_darwin_amd64
+    - bom-mgmt_linux_amd64
+  on:
+    repo: tompscanlan/bom-mgmt
+    tags: true
